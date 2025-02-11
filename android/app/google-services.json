@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "720178606176",
+    "project_id": "mentalhealthnlp",
+    "storage_bucket": "mentalhealthnlp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720178606176:android:6cf4a2ae30035581acd305",
+        "android_client_info": {
+          "package_name": "com.example.mental_health_nlp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM867FC1GPmFb9l07Q5HXikj4SUA_gA3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
