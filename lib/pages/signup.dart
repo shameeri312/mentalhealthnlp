@@ -77,7 +77,11 @@ class _SignUpState extends State<SignUp> {
             children: [
               Text(
                 "Sign Up",
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2176FF),
+                ),
               ),
 
               Text(

@@ -71,6 +71,7 @@ class _LoginState extends State<Login> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF2176FF),
                         ),
                       ),
 
