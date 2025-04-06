@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 
 class EmotionFace extends StatelessWidget {
-  final String EmotionIcon;
+  final IconData emotionIcon;
 
-  const EmotionFace({Key? key, required this.EmotionIcon}) : super(key: key);
+  const EmotionFace({Key? key, required this.emotionIcon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class EmotionFace extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       padding: EdgeInsets.all(16),
-      child: Center(child: Text(EmotionIcon, style: TextStyle(fontSize: 28))),
+      child: Center(child: Icon(emotionIcon, size: 36, color: Colors.white)),
     );
   }
 }

@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mental_health_nlp/pages/signup.dart';
 import 'package:mental_health_nlp/utils/wrapper.dart';
 
@@ -21,33 +21,23 @@ class _LoginState extends State<Login> {
         password: password.text,
       );
     } on FirebaseAuthException catch (e) {
-      String errorMessage = "";
-      switch (e.code) {
-        case 'invalid-email':
-          errorMessage = 'Invalid email address.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Incorrect password.';
-          break;
-        case 'user-not-found':
-          errorMessage = 'No user found with that email.';
-          break;
-        case 'user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        default:
-          errorMessage = 'An error occurred: ${e.message}';
-      }
+      String errorMessage = switch (e.code) {
+        'invalid-email' => 'Invalid email address.',
+        'wrong-password' => 'Incorrect password.',
+        'user-not-found' => 'No user found with that email.',
+        'user-disabled' => 'This user account has been disabled.',
+        _ => 'An error occurred: ${e.message}'
+      };
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEAF2FF), // Soft blue background
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -57,118 +47,135 @@ class _LoginState extends State<Login> {
             return const Wrapper();
           } else {
             return Center(
-              // Center the form
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: SingleChildScrollView(
-                  // Add SingleChildScrollView for overflow
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Login",
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2176FF),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Top Illustration
+                        Image.asset(
+                          'assets/illustration.jpg', // Add your illustration
+                          height: 160,
                         ),
-                      ),
+                        const SizedBox(height: 20),
 
-                      Text(
-                        "Provide credentials to login",
-                        style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Align(
-                        alignment:
-                            Alignment.centerLeft, // Keeps labels aligned left
-                        child: Text("Email", style: TextStyle(fontSize: 18)),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: email,
-                        decoration: InputDecoration(
-                          hintText: "Enter your email...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(
-                              color: Colors.blue,
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment:
-                            Alignment.centerLeft, // Keeps labels aligned left
-                        child: Text("Password", style: TextStyle(fontSize: 18)),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: password,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: "Enter your password...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(
-                              color: Colors.blue,
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => signin(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2176FF),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16.0,
-                              horizontal: 32.0,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignUp(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Don't have an account? Sign Up",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 16,
+                        Text(
+                          "Log In.",
+                          style: const TextStyle(
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF2176FF),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+
+                        TextField(
+                          controller: email,
+                          decoration: InputDecoration(
+                            hintText: "Email",
+                            filled: true,
+                            fillColor: const Color(0xFFF0F4FF),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: password,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            filled: true,
+                            fillColor: const Color(0xFFF0F4FF),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: true,
+                                  onChanged: (value) {},
+                                  activeColor: Color(0xFF2176FF),
+                                ),
+                                const Text("Remember me"),
+                              ],
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(color: Color(0xFF2176FF)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: signin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2176FF),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 32.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                            child: const Text("Login",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUp()),
+                            );
+                          },
+                          child: const Text.rich(
+                            TextSpan(
+                              text: "Don't have an account? ",
+                              children: [
+                                TextSpan(
+                                  text: "Sign Up",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2176FF),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

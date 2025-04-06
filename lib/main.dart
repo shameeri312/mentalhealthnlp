@@ -1,11 +1,29 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mental_health_nlp/utils/wrapper.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import google_fonts
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  // Try-catch for Firebase initialization
+  try {
+    await Firebase.initializeApp();
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization error: $e');
+    // Fallback or show error UI if needed
+  }
+
+  // Uncomment and configure the following for Supabase instead of Firebase
+  /*
+  await Supabase.initialize(
+    url: 'YOUR_SUPABASE_URL', // Replace with your Supabase URL
+    anonKey: 'YOUR_ANON_KEY', // Replace with your Supabase anon key
+  );
+  print('Supabase initialized successfully');
+  */
+
   runApp(const MyApp());
 }
 
@@ -16,7 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Wrapper(), // Add const if Wrapper is stateless
+      home: const Wrapper(), // Ensure Wrapper is stateless or adjust
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         primaryColor: const Color(0xFF2176FF),
@@ -32,9 +50,16 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-
-        // Set Montserrat font globally
-        textTheme: GoogleFonts.montserratTextTheme(Theme.of(context).textTheme),
+        // Apply Montserrat font globally
+        textTheme: GoogleFonts.montserratTextTheme(
+          Theme.of(context).textTheme.copyWith(
+            headlineLarge: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+            bodyMedium: const TextStyle(fontSize: 16),
+          ),
+        ),
       ),
     );
   }
