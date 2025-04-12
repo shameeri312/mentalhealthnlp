@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mental_health_nlp/pages/chatbot_screen.dart';
+import 'package:mental_health_nlp/pages/settings_page.dart';
 import 'package:mental_health_nlp/utils/emotion_face.dart';
 import 'package:mental_health_nlp/utils/exercises_list.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,11 +16,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser;
 
-  signout() async {
+  Future<void> signout() async {
+    // Add return type for clarity
     await FirebaseAuth.instance.signOut();
   }
 
-  // Define exercises for the Exercises section
   final List<String> exercises = [
     'Deep Breathing Exercise',
     'Mindful Walking',
@@ -32,7 +33,6 @@ class _HomePageState extends State<HomePage> {
     'Light Yoga Poses',
   ];
 
-  // Define video links for each mood
   void showVideoDialog(String mood) {
     List<String> videoLinks = [];
 
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      const Icon(Icons.play_arrow),
+                      const Icon(Icons.search),
                       const SizedBox(width: 10),
                     ],
                   ),
@@ -130,15 +130,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Show exercises dialog
   void showExerciseDialog() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
+        elevation: 0,
         title: const Text("Available Exercises"),
         content: SizedBox(
           width: double.maxFinite,
+          height: 300,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: exercises.length,
@@ -146,8 +147,14 @@ class _HomePageState extends State<HomePage> {
               final exercise = exercises[index];
               return GestureDetector(
                 onTap: () {
-                  // Add action when exercise is tapped (e.g., open a guide or video)
-                  print("Selected exercise: $exercise");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatBotScreen(
+                        initialPrompt: "Suggest $exercise for me",
+                      ),
+                    ),
+                  );
                 },
                 child: Card(
                   color: Colors.blue[50],
@@ -167,7 +174,19 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         const Spacer(),
-                        const Icon(Icons.play_arrow),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatBotScreen(
+                                  initialPrompt: "Suggest $exercise for me",
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                         const SizedBox(width: 10),
                       ],
                     ),
@@ -214,7 +233,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Section (unchanged)
+            // Top Section
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
@@ -238,19 +257,20 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(255, 255, 255, 0.10),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    padding: EdgeInsets.all(12),
-                    child: Icon(Icons.notifications, color: Colors.white),
+                  IconButton(
+                    icon: const Icon(Icons.settings, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SettingsPage()),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
 
-            // Search Bar (unchanged)
+            // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Container(
@@ -286,12 +306,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
 
             // "How do you feel?" Section
-            const Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'How do you feel?',
                     style: TextStyle(
                       color: Colors.white,
@@ -299,12 +319,18 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Icon(Icons.more_horiz, color: Colors.white),
+                  GestureDetector(
+                    onTap: showExerciseDialog,
+                    child: const Text(
+                      'more',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
                 ],
               ),
             ),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
 
             // Emotion Icons Row
             Padding(
@@ -316,14 +342,12 @@ class _HomePageState extends State<HomePage> {
                   _buildEmotionColumn(Icons.sentiment_dissatisfied, 'Bad'),
                   _buildEmotionColumn(Icons.sentiment_neutral, 'Well'),
                   _buildEmotionColumn(
-                    Icons.sentiment_very_satisfied,
-                    'Excellent',
-                  ),
+                      Icons.sentiment_very_satisfied, 'Excellent'),
                 ],
               ),
             ),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
 
             // Chatbot Button
             Padding(
@@ -334,19 +358,20 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ChatBotScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const ChatBotScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFF2176FF),
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    foregroundColor: const Color(0xFF2176FF),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
                   child: const Text(
-                    "Talk to Chatbot",
+                    "Talk to ChatBot",
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -377,17 +402,16 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: showExerciseDialog, // Trigger exercise dialog
-                          child:
-                              const Icon(Icons.more_horiz, color: Colors.black),
+                          onTap: showExerciseDialog,
+                          child: const Text(
+                            'more',
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    Expanded(
-                      child:
-                          ExerciseList(), // Assuming ExerciseList is a widget
-                    ),
+                    const Expanded(child: ExerciseList()),
                   ],
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mental_health_nlp/pages/chatbot_screen.dart';
 
 class ExerciseList extends StatelessWidget {
   const ExerciseList({super.key});
@@ -9,6 +10,7 @@ class ExerciseList extends StatelessWidget {
       child: ListView(
         children: [
           _buildExerciseCard(
+            context, // Pass context
             'Speaking Skills',
             '15 Exercises',
             Icons.favorite,
@@ -16,6 +18,7 @@ class ExerciseList extends StatelessWidget {
             Colors.red[100]!,
           ),
           _buildExerciseCard(
+            context,
             'Listening Practice',
             '10 Exercises',
             Icons.hearing,
@@ -23,6 +26,7 @@ class ExerciseList extends StatelessWidget {
             Colors.blue[100]!,
           ),
           _buildExerciseCard(
+            context,
             'Meditation',
             '8 Sessions',
             Icons.self_improvement,
@@ -30,6 +34,7 @@ class ExerciseList extends StatelessWidget {
             Colors.green[100]!,
           ),
           _buildExerciseCard(
+            context,
             'Cognitive Training',
             '12 Exercises',
             Icons.psychology,
@@ -37,6 +42,7 @@ class ExerciseList extends StatelessWidget {
             Colors.purple[100]!,
           ),
           _buildExerciseCard(
+            context,
             'Stress Management',
             '9 Tips',
             Icons.spa,
@@ -49,52 +55,79 @@ class ExerciseList extends StatelessWidget {
   }
 
   Widget _buildExerciseCard(
+    BuildContext context, // Add context parameter
     String title,
     String subtitle,
     IconData icon,
     Color bgColor,
     Color iconColor,
   ) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.all(12),
-                child: Center(child: Icon(icon, color: iconColor, size: 24)),
-              ),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                ],
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        // Navigate to ChatBotScreen with initial prompt
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatBotScreen(initialPrompt: "Suggest $title exercises for me"),
           ),
-          Icon(Icons.more_horiz, color: Colors.black),
-        ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Center(child: Icon(icon, color: iconColor, size: 24)),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      subtitle,
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                // Navigate to ChatBotScreen with initial prompt
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatBotScreen(
+                        initialPrompt: "Suggest $title exercises for me"),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
