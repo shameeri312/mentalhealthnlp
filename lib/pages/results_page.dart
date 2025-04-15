@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ResultsPage extends StatelessWidget {
+  const ResultsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9,8 +11,9 @@ class ResultsPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('moods').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
+          }
           final moods = snapshot.data!.docs;
           return ListView.builder(
             itemCount: moods.length,

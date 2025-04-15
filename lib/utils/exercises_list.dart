@@ -12,7 +12,7 @@ class ExerciseList extends StatelessWidget {
           _buildExerciseCard(
             context, // Pass context
             'Speaking Skills',
-            '15 Exercises',
+            'Click to get exercises',
             Icons.favorite,
             Colors.red[600]!,
             Colors.red[100]!,
@@ -20,7 +20,7 @@ class ExerciseList extends StatelessWidget {
           _buildExerciseCard(
             context,
             'Listening Practice',
-            '10 Exercises',
+            'Click to get exercises',
             Icons.hearing,
             Colors.blue[600]!,
             Colors.blue[100]!,
@@ -28,7 +28,7 @@ class ExerciseList extends StatelessWidget {
           _buildExerciseCard(
             context,
             'Meditation',
-            '8 Sessions',
+            'Click to get exercises',
             Icons.self_improvement,
             Colors.green[600]!,
             Colors.green[100]!,
@@ -36,7 +36,7 @@ class ExerciseList extends StatelessWidget {
           _buildExerciseCard(
             context,
             'Cognitive Training',
-            '12 Exercises',
+            'Click to get exercises',
             Icons.psychology,
             Colors.purple[600]!,
             Colors.purple[100]!,
@@ -44,7 +44,7 @@ class ExerciseList extends StatelessWidget {
           _buildExerciseCard(
             context,
             'Stress Management',
-            '9 Tips',
+            'Click to get exercises',
             Icons.spa,
             Colors.orange[600]!,
             Colors.orange[100]!,

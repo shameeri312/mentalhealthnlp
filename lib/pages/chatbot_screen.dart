@@ -48,11 +48,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       final response = await _nlpService.analyzeSentiment(text);
       print('API Response: $response');
 
-      if (response is! Map<String, dynamic>) {
-        throw Exception(
-            'Invalid API response: Expected a Map, got ${response.runtimeType}');
-      }
-
       String botResponse = response['response'] as String? ?? 'No response';
       String? suggestion = response['suggestion'] as String?;
       String? video = response['video'] as String?;
@@ -125,35 +120,17 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "ChatBot",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF2176FF),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-        ],
+        backgroundColor: Colors.grey[100], // Darker blue for app bar
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFF5F5F5),
-          image: DecorationImage(
-            image: AssetImage('assets/images/chat_bg.jpg'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black26,
-              BlendMode.darken,
-            ),
-          ),
-        ),
+        color: Colors.white, // Dark background for dark mode
         child: Column(
           children: [
             Expanded(
@@ -163,7 +140,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 itemCount: messages.length + (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (_isLoading && index == messages.length) {
-                    return const Align(
+                    return Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
                         padding: EdgeInsets.all(10),
@@ -171,7 +148,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                           'Loading...',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF2176FF),
+                            color: Colors.blueAccent[600],
                           ),
                         ),
                       ),
@@ -180,100 +157,139 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
                   final message = messages[index];
                   bool isUser = message["sender"] == "You";
-                  return Align(
-                    alignment:
-                        isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isUser ? Colors.blue[200] : Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 2),
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Row(
+                      mainAxisAlignment: isUser
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!isUser) // Show avatar or icon for bot
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFF2176FF),
+                            radius: 15,
+                            child:
+                                Icon(Icons.chat, color: Colors.white, size: 16),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: isUser
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            message["sender"],
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  isUser ? Colors.blue[700] : Colors.red[700],
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            message["text"],
-                            style: TextStyle(
-                              color: isUser ? Colors.black : Colors.blue[900],
-                            ),
-                          ),
-                          if (!isUser && message["suggestion"] != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: "Suggestion: ",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: message["suggestion"],
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          if (!isUser && message["video"] != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  final url = Uri.parse(message["video"]);
-                                  if (await canLaunchUrl(url)) {
-                                    await launchUrl(url);
-                                  } else {
-                                    print(
-                                        "Could not launch ${message['video']}");
-                                  }
-                                },
-                                child: const Text(
-                                  "Watch Video",
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: isUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  message["sender"],
                                   style: TextStyle(
-                                    color: Colors.blue,
-                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                    color: isUser
+                                        ? Colors.blueAccent[600]
+                                        : Colors.blueAccent[600],
+                                    fontSize: 12,
                                   ),
                                 ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  message["time"],
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Container(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.7,
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isUser
+                                    ? const Color(
+                                        0xFF2176FF) // Bluish user bubble
+                                    : Colors.grey[100], // Grayish bot bubble
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: isUser
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    message["text"],
+                                    style: TextStyle(
+                                      color:
+                                          isUser ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  if (!isUser && message["suggestion"] != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Suggestion: ",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueAccent[600],
+                                            ),
+                                          ),
+                                          Text(
+                                            message["suggestion"],
+                                            style: TextStyle(
+                                              color: Colors.blueAccent[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  if (!isUser && message["video"] != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          final url =
+                                              Uri.parse(message["video"]);
+                                          if (await canLaunchUrl(url)) {
+                                            await launchUrl(url);
+                                          } else {
+                                            print(
+                                                "Could not launch ${message['video']}");
+                                          }
+                                        },
+                                        child: Text(
+                                          "Watch Video",
+                                          style: TextStyle(
+                                            color: Colors.blueAccent[600],
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                          const SizedBox(height: 5),
-                          Text(
-                            message["time"],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
+                          ],
+                        ),
+                        if (isUser) const SizedBox(width: 8),
+                        if (isUser) // Show avatar or icon for user
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFF2176FF),
+                            radius: 15,
+                            child: Icon(Icons.person,
+                                color: Colors.white, size: 16),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
                   );
                 },
@@ -286,21 +302,23 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.grey[200], // Dark input field
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.grey.withOpacity(0.1),
+                        //     spreadRadius: 1,
+                        //     blurRadius: 5,
+                        //     offset: const Offset(0, 2),
+                        //   ),
+                        // ],
                       ),
                       child: TextField(
                         controller: _controller,
+                        style: const TextStyle(color: Colors.black),
                         decoration: const InputDecoration(
                           hintText: "Type a message...",
+                          hintStyle: TextStyle(color: Colors.black),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 15,

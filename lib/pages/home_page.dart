@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
               return GestureDetector(
                 onTap: () => launchUrl(Uri.parse(url)),
                 child: Card(
-                  color: Colors.blue[50],
+                  color: Colors.grey[50],
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -135,10 +135,10 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 0, // No shadows
         title: const Text("Available Exercises"),
         content: SizedBox(
-          width: double.maxFinite,
+          width: double.maxFinite, // Full width to prevent content overload
           height: 300,
           child: ListView.builder(
             shrinkWrap: true,
@@ -151,45 +151,61 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatBotScreen(
-                        initialPrompt: "Suggest $exercise for me",
+                        initialPrompt: "Suggest $exercise exercises for me",
                       ),
                     ),
                   );
                 },
-                child: Card(
-                  color: Colors.blue[50],
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${index + 1}. $exercise',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatBotScreen(
-                                  initialPrompt: "Suggest $exercise for me",
-                                ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        // Wrap the Column in Expanded to allow text wrapping
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${index + 1}. $exercise',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          },
+                              softWrap: true, // Allow text to wrap
+                              overflow: TextOverflow
+                                  .visible, // Ensure wrapping happens
+                            ),
+                            const Text(
+                              'Click to get exercises',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatBotScreen(
+                                initialPrompt:
+                                    "Suggest $exercise exercises for me",
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );
