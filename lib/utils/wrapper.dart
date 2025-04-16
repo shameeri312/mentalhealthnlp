@@ -1,63 +1,39 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// lib/utils/wrapper.dart
 import 'package:flutter/material.dart';
-import 'package:mental_health_nlp/pages/home_page.dart';
-import 'package:mental_health_nlp/pages/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mental_health_nlp/pages/home_page.dart'; // Screen for logged-in users
+import 'package:mental_health_nlp/pages/welcome_screen.dart'; // Screen for non-authenticated users
 
-class Wrapper extends StatefulWidget {
-  const Wrapper({super.key});
+class Wrapper extends StatelessWidget {
+  const Wrapper({Key? key}) : super(key: key);
 
-  @override
-  State<Wrapper> createState() => _WrapperState();
-}
-
-// bottomNavigationBar: BottomNavigationBar(
-//   selectedItemColor: Colors.blue[600], // Color of the selected label
-//   unselectedItemColor: Colors.grey, // Color of the unselected labels
-
-//   backgroundColor: Colors.white,
-//   items: [
-//     BottomNavigationBarItem(
-//       backgroundColor: Colors.white,
-//       icon: Icon(Icons.home, color: Colors.blue[600], size: 30),
-//       label: 'Home',
-//     ),
-//     BottomNavigationBarItem(
-//       backgroundColor: Colors.white,
-//       icon: Icon(Icons.favorite, color: Colors.blue[600], size: 30),
-//       label: 'Favourites',
-//     ),
-//     BottomNavigationBarItem(
-//       backgroundColor: Colors.white,
-//       icon: Icon(Icons.chat, color: Colors.blue[600], size: 30),
-//       label: 'Messages',
-//     ),
-//     BottomNavigationBarItem(
-//       backgroundColor: Colors.white,
-//       icon: Icon(Icons.person, color: Colors.blue[600], size: 30),
-//       label: 'Profile',
-//     ),
-//   ],
-// ),
-
-class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<User?>(
-        // Explicitly typing the stream
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            ); // Show loading indicator
-          } else if (snapshot.hasData) {
-            return const HomePage();
-          } else {
-            return const Login();
-          }
-        },
-      ),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // While waiting for the auth state to load, show a loading indicator
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // If there's an error, show an error message (optional)
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text('Error loading authentication state')),
+          );
+        }
+
+        // If the user is logged in, show the HomePage
+        if (snapshot.hasData) {
+          return const HomePage();
+        }
+
+        // If the user is not logged in, show the WelcomeScreen
+        return const WelcomeScreen();
+      },
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:mental_health_nlp/pages/chatbot_screen.dart';
 import 'package:mental_health_nlp/pages/settings_page.dart';
 import 'package:mental_health_nlp/utils/emotion_face.dart';
 import 'package:mental_health_nlp/utils/exercises_list.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'welcome_screen.dart'; // Import the WelcomeScreen
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,10 +15,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser;
+  int _selectedIndex = 0; // Track the current tab index
 
   Future<void> signout() async {
-    // Add return type for clarity
     await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => WelcomeScreen()),
+      (route) => false,
+    );
   }
 
   final List<String> exercises = [
@@ -31,205 +36,70 @@ class _HomePageState extends State<HomePage> {
     'Stretching Routine',
     'Gratitude Exercise',
     'Light Yoga Poses',
+    'Visualization Technique',
+    'Body Scan Meditation',
+    'Nature Walk',
   ];
 
-  void showVideoDialog(String mood) {
-    List<String> videoLinks = [];
-
-    if (mood == 'Fine') {
-      videoLinks = [
-        "https://www.youtube.com/watch?v=qKcRUOWYQ9w",
-        "https://www.youtube.com/watch?v=yo1pJ_D-H3M",
-        "https://www.youtube.com/watch?v=ZjsUNm6xj_E",
-      ];
-    } else if (mood == 'Bad') {
-      videoLinks = [
-        "https://www.youtube.com/watch?v=INkEEV2zch4",
-        "https://www.youtube.com/watch?v=Mnj1VU1VY8A",
-        "https://www.youtube.com/watch?v=5xFsuvQ-aAQ",
-      ];
-    } else if (mood == 'Well') {
-      videoLinks = [
-        "https://www.youtube.com/watch?v=5mFTXbZzOAE",
-        "https://www.youtube.com/watch?v=Ido0lHOFQEY",
-        "https://www.youtube.com/watch?v=nfWlot6h_JM",
-      ];
-    } else if (mood == 'Excellent') {
-      videoLinks = [
-        "https://www.youtube.com/watch?v=X_cHhr9BecU",
-        "https://www.youtube.com/watch?v=L_jWHffIx5E",
-      ];
-    }
-
+  // Updated method to show mood information and suggested exercises
+  void showMoodDialog(
+      String mood, String description, List<String> suggestedExercises) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (BuildContext dialogContext) => AlertDialog(
         backgroundColor: Colors.white,
-        title: Text("Recommended videos for \"$mood\" mood"),
+        title: Text("Mood: $mood"),
         content: SizedBox(
           width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: videoLinks.length,
-            itemBuilder: (context, index) {
-              final url = videoLinks[index];
-              final videoId = Uri.parse(url).queryParameters['v'];
-              final thumbnailUrl = videoId != null
-                  ? 'https://img.youtube.com/vi/$videoId/0.jpg'
-                  : null;
-
-              return GestureDetector(
-                onTap: () => launchUrl(Uri.parse(url)),
-                child: Card(
-                  color: Colors.grey[50],
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      if (thumbnailUrl != null)
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                          child: Image.network(
-                            thumbnailUrl,
-                            width: 100,
-                            height: 70,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Video ${index + 1}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const Icon(Icons.search),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 16),
                 ),
-              );
-            },
+                const SizedBox(height: 20),
+                const Text(
+                  "Suggested Exercises:",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                ...suggestedExercises.map((exercise) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        '- $exercise',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    )),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
             child: const Text("Close"),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (Navigator.canPop(dialogContext)) {
+                Navigator.pop(dialogContext);
+              }
+            },
           ),
         ],
       ),
     );
   }
 
-  void showExerciseDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        elevation: 0, // No shadows
-        title: const Text("Available Exercises"),
-        content: SizedBox(
-          width: double.maxFinite, // Full width to prevent content overload
-          height: 300,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: exercises.length,
-            itemBuilder: (context, index) {
-              final exercise = exercises[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatBotScreen(
-                        initialPrompt: "Suggest $exercise exercises for me",
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        // Wrap the Column in Expanded to allow text wrapping
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${index + 1}. $exercise',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              softWrap: true, // Allow text to wrap
-                              overflow: TextOverflow
-                                  .visible, // Ensure wrapping happens
-                            ),
-                            const Text(
-                              'Click to get exercises',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatBotScreen(
-                                initialPrompt:
-                                    "Suggest $exercise exercises for me",
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Close"),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmotionColumn(IconData icon, String mood) {
+  Widget _buildEmotionColumn(String imagePath, String mood, String description,
+      List<String> suggestedExercises) {
     return GestureDetector(
-      onTap: () => showVideoDialog(mood),
+      onTap: () => showMoodDialog(mood, description, suggestedExercises),
       child: Column(
         children: [
-          EmotionFace(emotionIcon: icon),
+          EmotionFace(imagePath: imagePath),
           const SizedBox(height: 10),
-          Text(mood, style: const TextStyle(fontSize: 16, color: Colors.white)),
+          Text(mood, style: const TextStyle(fontSize: 16, color: Colors.black)),
         ],
       ),
     );
@@ -238,173 +108,159 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => signout(),
-        backgroundColor: const Color(0xFF2176FF),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.logout_rounded),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          "MindEase",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        foregroundColor: Colors.black,
+        centerTitle: true,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2.0),
+          child: Divider(
+            color: Colors.deepOrange,
+            thickness: 2.0,
+          ),
+        ),
       ),
-      backgroundColor: const Color(0xFF2176FF),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Section
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hi, ${user?.displayName ?? 'Dear'}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user!.email!,
-                        style: TextStyle(color: Colors.blue[100]),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SettingsPage()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+        child: SingleChildScrollView(
+          // Make the entire content scrollable
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Section (unchanged)
 
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromRGBO(255, 255, 255, 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                height: 56,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              const SizedBox(height: 20),
+
+              // Updated "How do you feel?" Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.search, color: Colors.white),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Search...",
-                          hintStyle: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        style: const TextStyle(color: Colors.white),
-                        cursorColor: Colors.white,
+                    const Text(
+                      'How do you feel?',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: showExerciseDialog,
+                      child: const Text(
+                        'more',
+                        style: TextStyle(color: Colors.black, fontSize: 16),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-            // "How do you feel?" Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'How do you feel?',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              // Emotion Icons Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildEmotionColumn(
+                      'assets/sad.png',
+                      'Sad',
+                      'Feeling down or overwhelmed? This mood might indicate sadness, stress, or a sense of hopelessness. It could be triggered by personal challenges, loss, or external pressures. Taking time to process these emotions can be beneficial.',
+                      [
+                        'Deep Breathing Exercise',
+                        'Journaling for Emotional Release',
+                        'Guided Meditation',
+                        'Progressive Muscle Relaxation',
+                        'Visualization Technique',
+                      ],
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: showExerciseDialog,
+                    _buildEmotionColumn(
+                      'assets/disappointed.png',
+                      'Confused',
+                      'Feeling let down or frustrated? This mood might stem from unmet expectations, setbacks, or minor failures. It’s a natural response that can be eased with self-compassion and gentle activities.',
+                      [
+                        'Mindful Walking',
+                        'Progressive Muscle Relaxation',
+                        'Positive Affirmations',
+                        'Stretching Routine',
+                        'Gratitude Exercise',
+                      ],
+                    ),
+                    _buildEmotionColumn(
+                      'assets/neutral.png',
+                      'Neutral',
+                      'Feeling balanced but not strongly emotional? This state reflects a calm or indifferent mindset, possibly after a period of intensity. It’s an opportunity to maintain equilibrium and build resilience.',
+                      [
+                        'Stretching Routine',
+                        'Gratitude Exercise',
+                        'Light Yoga Poses',
+                        'Body Scan Meditation',
+                        'Nature Walk',
+                      ],
+                    ),
+                    _buildEmotionColumn(
+                      'assets/happy.png',
+                      'Happy',
+                      'Feeling joyful and content? This positive mood might arise from achievements, connections, or simple pleasures. Nurture it with activities that sustain your well-being and spread positivity.',
+                      [
+                        'Gratitude Exercise',
+                        'Light Yoga Poses',
+                        'Positive Affirmations',
+                        'Mindful Walking',
+                        'Guided Meditation',
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // Chatbot Button (unchanged)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChatBotScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100.0),
+                      ),
+                    ),
                     child: const Text(
-                      'more',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      "Talk to ChatBot",
+                      style: TextStyle(fontSize: 16),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // Emotion Icons Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildEmotionColumn(Icons.sentiment_satisfied, 'Fine'),
-                  _buildEmotionColumn(Icons.sentiment_dissatisfied, 'Bad'),
-                  _buildEmotionColumn(Icons.sentiment_neutral, 'Well'),
-                  _buildEmotionColumn(
-                      Icons.sentiment_very_satisfied, 'Excellent'),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // Chatbot Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ChatBotScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF2176FF),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Text(
-                    "Talk to ChatBot",
-                    style: TextStyle(fontSize: 16),
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 25),
+              const SizedBox(height: 25),
 
-            // Expanded Bottom Section with Exercises
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-                ),
-                padding: const EdgeInsets.all(25),
+              // Exercises Section with Limited Height
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -427,13 +283,164 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const Expanded(child: ExerciseList()),
+                    SizedBox(
+                      height: 500,
+                      child: const ExerciseList(),
+                    ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.deepOrange, width: 2.0),
+          ),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.deepOrange,
+          unselectedItemColor: Colors.black,
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'Exercises',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat),
+              label: 'Chat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.logout),
+              label: 'Logout',
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // _onItemTapped method (unchanged)
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        showExerciseDialog();
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ChatBotScreen()),
+        );
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage()),
+        );
+        break;
+      case 4:
+        signout();
+        break;
+    }
+  }
+
+  // showExerciseDialog method (unchanged)
+  void showExerciseDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text("Available Exercises"),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: exercises.length,
+            itemBuilder: (context, index) {
+              final exercise = exercises[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatBotScreen(
+                        initialPrompt: "Suggest $exercise exercises for me",
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${index + 1}. $exercise',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                            const Text(
+                              'Click to get exercises',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Close"),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ],
       ),
     );
   }
