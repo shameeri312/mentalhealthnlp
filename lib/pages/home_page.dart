@@ -1,49 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mental_health_nlp/pages/all_exercises_page.dart';
 import 'package:mental_health_nlp/pages/chatbot_screen.dart';
-import 'package:mental_health_nlp/pages/settings_page.dart';
+import 'package:mental_health_nlp/utils/base_scaffold.dart';
 import 'package:mental_health_nlp/utils/emotion_face.dart';
 import 'package:mental_health_nlp/utils/exercises_list.dart';
-import 'welcome_screen.dart'; // Import the WelcomeScreen
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State {
   final user = FirebaseAuth.instance.currentUser;
-  int _selectedIndex = 0; // Track the current tab index
 
-  Future<void> signout() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => WelcomeScreen()),
-      (route) => false,
-    );
-  }
-
-  final List<String> exercises = [
-    'Deep Breathing Exercise',
-    'Mindful Walking',
-    'Progressive Muscle Relaxation',
-    'Journaling for Emotional Release',
-    'Guided Meditation',
-    'Positive Affirmations',
-    'Stretching Routine',
-    'Gratitude Exercise',
-    'Light Yoga Poses',
-    'Visualization Technique',
-    'Body Scan Meditation',
-    'Nature Walk',
-  ];
-
-  // Updated method to show mood information and suggested exercises
   void showMoodDialog(
-      String mood, String description, List<String> suggestedExercises) {
+      String mood, String description, List suggestedExercises) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
@@ -92,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildEmotionColumn(String imagePath, String mood, String description,
-      List<String> suggestedExercises) {
+      List suggestedExercises) {
     return GestureDetector(
       onTap: () => showMoodDialog(mood, description, suggestedExercises),
       child: Column(
@@ -107,38 +81,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          "MindEase",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        foregroundColor: Colors.black,
-        centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2.0),
-          child: Divider(
-            color: Colors.deepOrange,
-            thickness: 2.0,
-          ),
-        ),
-      ),
+    return BaseScaffold(
+      currentIndex: 0,
       body: SafeArea(
         child: SingleChildScrollView(
-          // Make the entire content scrollable
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Section (unchanged)
-
               const SizedBox(height: 20),
-
-              // Updated "How do you feel?" Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
@@ -147,13 +97,18 @@ class _HomePageState extends State<HomePage> {
                     const Text(
                       'How do you feel?',
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
-                      onTap: showExerciseDialog,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AllExercisesPage()),
+                        );
+                      },
                       child: const Text(
                         'more',
                         style: TextStyle(color: Colors.black, fontSize: 16),
@@ -162,10 +117,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // Emotion Icons Row
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
@@ -222,10 +174,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // Chatbot Button (unchanged)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: SizedBox(
@@ -239,8 +188,9 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.orange[700],
+                      foregroundColor: Colors.white,
+                      elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(100.0),
@@ -253,194 +203,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 25),
-
-              // Exercises Section with Limited Height
+              const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Exercises',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: showExerciseDialog,
-                          child: const Text(
-                            'more',
-                            style: TextStyle(color: Colors.black, fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 500,
-                      child: const ExerciseList(),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: const ExerciseList(),
               ),
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.deepOrange, width: 2.0),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.deepOrange,
-          unselectedItemColor: Colors.black,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Exercises',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chat',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.logout),
-              label: 'Logout',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // _onItemTapped method (unchanged)
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        break;
-      case 1:
-        showExerciseDialog();
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ChatBotScreen()),
-        );
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage()),
-        );
-        break;
-      case 4:
-        signout();
-        break;
-    }
-  }
-
-  // showExerciseDialog method (unchanged)
-  void showExerciseDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text("Available Exercises"),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: exercises.length,
-            itemBuilder: (context, index) {
-              final exercise = exercises[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatBotScreen(
-                        initialPrompt: "Suggest $exercise exercises for me",
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${index + 1}. $exercise',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                            ),
-                            const Text(
-                              'Click to get exercises',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Close"),
-            onPressed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
       ),
     );
   }
