@@ -70,7 +70,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey[50],
         elevation: 0, // Remove default shadow
         title: const Text(
           "MindEase",
@@ -79,20 +79,8 @@ class _BaseScaffoldState extends State<BaseScaffold> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        foregroundColor: Colors.black,
+        foregroundColor: Colors.deepOrange[600],
         centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x2D000000),
-                offset: Offset(0, 3),
-                blurRadius: 6,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-        ),
       ),
       body: widget.body,
       bottomNavigationBar: Container(

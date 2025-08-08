@@ -16,7 +16,6 @@
 .idea/
 
 # VS Code (optional - uncomment if you want to ignore VS Code settings)
-.vscode/
 
 # Flutter/Dart/Pub related
 .dart_tool/
@@ -68,3 +67,7 @@ firebase_options.dart
 
 # Other
 .gitattributes
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+branch_structure.json
